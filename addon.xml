@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.wnbc"
        name="WNBC Programs"
-       version="4.0.1"
+       version="4.0.2"
        provider-name="t1m/ Arias800">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -23,8 +23,6 @@
     <website>nbc.com</website>
     <source>https://github.com/learningit/repo-plugins/</source>
     <license>GPL-2.0-or-later</license>
-    <news>Version 4.0.1 Add working subtitles
-    </news>
     <assets>
         <icon>resources/icon.png</icon>
         <fanart>resources/fanart.jpg</fanart>
