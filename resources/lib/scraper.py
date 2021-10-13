@@ -46,6 +46,7 @@ class myAddon(t1mAddon):
            b = b['data']
            if b['programmingType'] != 'Full Episode':
                continue
+
            infoList = {}
            name = b['secondaryTitle']
            url = ''.join(['https://link.theplatform.com/s/NnzsPC/media/guid/2410887629/',b['mpxGuid'],'?policy=43674&player=NBC.com%20Instance%20of%3A%20rational-player-production&formats=m3u,mpeg4&embedded=true&tracking=true&format=SMIL'])
@@ -61,7 +62,7 @@ class myAddon(t1mAddon):
            duration = b.get('duration', False)
            if duration:
                infoList['Duration'] = int(duration)
-           infoList['TVShowTitle'] = xbmc.getInfoLabel('ListItem.TVShowTitle')
+           infoList['TVShowTitle'] = b.get('seriesShortTitle')
            infoList['Plot'] = b.get('description')
            infoList['Studio'] = 'NBC'
            infoList['mediatype'] = 'episode'
@@ -72,26 +73,30 @@ class myAddon(t1mAddon):
   def getAddonVideo(self,url):
       if 'format=SMIL' in url:
           html = requests.get(url, headers=self.defaultHeaders).text
-          if 'video src="' in html:
-              url = re.compile('video src="(.+?)"', re.DOTALL).search(html).group(1)
+          if not "GeoLocationBlocked" in html:
+            if 'video src="' in html:
+                url = re.compile('video src="(.+?)"', re.DOTALL).search(html).group(1)
+            else:
+                url = re.compile('ref src="(.+?)"', re.DOTALL).search(html).group(1)
+
+            if 'nbcvodenc' in url:
+                html = requests.get(url, headers=self.defaultHeaders).text
+                url = re.compile('(http.+?)\n', re.DOTALL).search(html).group(1)
+                url = ''.join([url,'|User-Agent=',urllib.parse.quote(self.defaultHeaders['User-Agent'])])
+
+            sub = re.compile('<textstream src="(.+?)"',re.DOTALL).search(html).group(1)
+            html = requests.get(sub, headers=self.defaultHeaders).content
+
+            if not xbmcvfs.exists('special://userdata/addon_data/plugin.video.wnbc/'):
+              xbmcvfs.mkdir('special://userdata/addon_data/plugin.video.wnbc/')
+
+            with xbmcvfs.File('special://userdata/addon_data/plugin.video.wnbc/sub.tt', 'wb') as file:
+              result = file.write(html)
+
+            stl_to_srt.main(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.wnbc/sub.srt'),xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.wnbc/sub.tt'))
           else:
-              url = re.compile('ref src="(.+?)"', re.DOTALL).search(html).group(1)
-
-          if 'nbcvodenc' in url:
-              html = requests.get(url, headers=self.defaultHeaders).text
-              url = re.compile('(http.+?)\n', re.DOTALL).search(html).group(1)
-              url = ''.join([url,'|User-Agent=',urllib.parse.quote(self.defaultHeaders['User-Agent'])])
-
-          sub = re.compile('<textstream src="(.+?)"',re.DOTALL).search(html).group(1)
-          html = requests.get(sub, headers=self.defaultHeaders).content
-
-          if not xbmcvfs.exists('special://userdata/addon_data/plugin.video.wnbc/'):
-            xbmcvfs.mkdir('special://userdata/addon_data/plugin.video.wnbc/')
-
-          with xbmcvfs.File('special://userdata/addon_data/plugin.video.wnbc/sub.tt', 'wb') as file:
-            result = file.write(html)
-
-          stl_to_srt.main(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.wnbc/sub.srt'),xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.wnbc/sub.tt'))
+            dialog = xbmcgui.Dialog()
+            dialog.notification('WNBC', 'This content is not available in your location.', xbmcgui.NOTIFICATION_INFO, 5000)
 
       liz = xbmcgui.ListItem(path = url)
       liz.setProperty('inputstream','inputstream.adaptive')
