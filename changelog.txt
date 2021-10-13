@@ -1,2 +1,6 @@
+***4.0.3***
+- Add geoblocking check.
+- Fix TvShowTitle.
+
 ***4.0.2***
 - Add working subtitles converter.
