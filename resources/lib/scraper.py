@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # WNBC Kodi Video Addon
 #
-from . import stl_to_srt
 from t1mlib import t1mAddon
 
 import json
@@ -85,15 +84,7 @@ class myAddon(t1mAddon):
                 url = ''.join([url,'|User-Agent=',urllib.parse.quote(self.defaultHeaders['User-Agent'])])
 
             sub = re.compile('<textstream src="(.+?)"',re.DOTALL).search(html).group(1)
-            html = requests.get(sub, headers=self.defaultHeaders).content
 
-            if not xbmcvfs.exists('special://userdata/addon_data/plugin.video.wnbc/'):
-              xbmcvfs.mkdir('special://userdata/addon_data/plugin.video.wnbc/')
-
-            with xbmcvfs.File('special://userdata/addon_data/plugin.video.wnbc/sub.tt', 'wb') as file:
-              result = file.write(html)
-
-            stl_to_srt.main(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.wnbc/sub.srt'),xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.wnbc/sub.tt'))
           else:
             dialog = xbmcgui.Dialog()
             dialog.notification('WNBC', 'This content is not available in your location.', xbmcgui.NOTIFICATION_INFO, 5000)
@@ -102,5 +93,5 @@ class myAddon(t1mAddon):
       liz.setProperty('inputstream','inputstream.adaptive')
       liz.setProperty('inputstream.adaptive.manifest_type','hls')
       liz.setMimeType('application/x-mpegURL')
-      liz.setSubtitles(['special://userdata/addon_data/plugin.video.wnbc/sub.srt'])
+      liz.setSubtitles([sub])
       xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, liz)

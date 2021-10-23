@@ -1,3 +1,6 @@
+***4.0.4***
+- Use parser from Inputstream Adaptive for the sub.
+
 ***4.0.3***
 - Add geoblocking check.
 - Fix TvShowTitle.
