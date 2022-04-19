@@ -1,3 +1,6 @@
+***4.0.5***
+- Flake8 fix
+
 ***4.0.4***
 - Use parser from Inputstream Adaptive for the sub.
 
