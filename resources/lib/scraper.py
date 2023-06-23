@@ -9,6 +9,7 @@ import xbmcgui
 import sys
 import requests
 import urllib.parse
+from ttml2ssa import Ttml2SsaAddon
 
 
 class myAddon(t1mAddon):
@@ -45,7 +46,7 @@ class myAddon(t1mAddon):
 
                     infoList = {}
                     name = b['secondaryTitle']
-                    url = ''.join(['https://link.theplatform.com/s/NnzsPC/media/guid/2410887629/', b['mpxGuid'], '?policy=43674&player=NBC.com%20Instance%20of%3A%20rational-player-production&formats=m3u,mpeg4&embedded=true&tracking=true&format=SMIL'])
+                    url = ''.join(['http://link.theplatform.com/s/NnzsPC/media/guid/2410887629/', b['mpxGuid'], '?mbr=true&manifest=m3u&switch=HLSServiceSecure#__youtubedl_smuggle=%7B%22force_smil_url%22%3A+true%7D'])
                     thumb = b['image']
                     fanart = thumb
                     infoList['Title'] = name
@@ -79,15 +80,10 @@ class myAddon(t1mAddon):
                     url = re.compile('(http.+?)\n', re.DOTALL).search(html).group(1)
                     url = ''.join([url, '|User-Agent=', urllib.parse.quote(self.defaultHeaders['User-Agent'])])
 
-                sub = re.compile('<textstream src="(.+?)"', re.DOTALL).search(html).group(1)
-
             else:
                 dialog = xbmcgui.Dialog()
                 dialog.notification('WNBC', 'This content is not available in your location.', xbmcgui.NOTIFICATION_INFO, 5000)
-
+        
         liz = xbmcgui.ListItem(path=url)
         liz.setProperty('inputstream', 'inputstream.adaptive')
-        liz.setProperty('inputstream.adaptive.manifest_type', 'hls')
-        liz.setMimeType('application/x-mpegURL')
-        liz.setSubtitles([sub])
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, liz)
