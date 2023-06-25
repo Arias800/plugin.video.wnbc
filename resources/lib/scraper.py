@@ -6,11 +6,10 @@ from t1mlib import t1mAddon
 import re
 import xbmcplugin
 import xbmcgui
+import xbmc
 import sys
 import requests
 import urllib.parse
-from ttml2ssa import Ttml2SsaAddon
-
 
 class myAddon(t1mAddon):
 
@@ -46,7 +45,8 @@ class myAddon(t1mAddon):
 
                     infoList = {}
                     name = b['secondaryTitle']
-                    url = ''.join(['http://link.theplatform.com/s/NnzsPC/media/guid/2410887629/', b['mpxGuid'], '?mbr=true&manifest=m3u&switch=HLSServiceSecure#__youtubedl_smuggle=%7B%22force_smil_url%22%3A+true%7D'])
+                    url = ''.join(['https://link.theplatform.com/s/NnzsPC/media/guid/2410887629/', b['mpxGuid']])
+                    print(url)
                     thumb = b['image']
                     fanart = thumb
                     infoList['Title'] = name
@@ -67,23 +67,11 @@ class myAddon(t1mAddon):
         return(ilist)
 
     def getAddonVideo(self, url):
-        if 'format=SMIL' in url:
-            html = requests.get(url, headers=self.defaultHeaders).text
-            if "GeoLocationBlocked" not in html:
-                if 'video src="' in html:
-                    url = re.compile('video src="(.+?)"', re.DOTALL).search(html).group(1)
-                else:
-                    url = re.compile('ref src="(.+?)"', re.DOTALL).search(html).group(1)
-
-                if 'nbcvodenc' in url:
-                    html = requests.get(url, headers=self.defaultHeaders).text
-                    url = re.compile('(http.+?)\n', re.DOTALL).search(html).group(1)
-                    url = ''.join([url, '|User-Agent=', urllib.parse.quote(self.defaultHeaders['User-Agent'])])
-
-            else:
-                dialog = xbmcgui.Dialog()
-                dialog.notification('WNBC', 'This content is not available in your location.', xbmcgui.NOTIFICATION_INFO, 5000)
-        
+        if xbmc.getCondVisibility('system.platform.android'):
+            #playready stream with better quality
+            url = url + '?policy=43674&player=NBC.com%20Instance%20of%3A%20rational-player-production&formats=m3u,mpeg4&embedded=true&tracking=true'
+        else:
+            url = url + '?mbr=true&manifest=m3u&switch=HLSServiceSecure'
         liz = xbmcgui.ListItem(path=url)
         liz.setProperty('inputstream', 'inputstream.adaptive')
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, liz)
